@@ -151,7 +151,6 @@ template <typename Value, typename Less>
            && counts.rosterGroups <= domains.rosterGroups.size()
            && counts.spawnStems <= domains.spawnStems.size()
            && counts.spawnNameHashes <= domains.spawnNameHashes.size()
-           && counts.spawnPoints <= domains.spawnPoints.size()
            && counts.hashNames <= domains.hashNames.size()
            && counts.vendorIndex <= domains.vendorIndex.size()
            && counts.vendorDefinitions <= domains.vendorDefinitions.size()
@@ -228,9 +227,8 @@ bool valid_domains(Domains domains) noexcept {
         // An empty catalog is complete. It is what a build with no installed spawn set means.
         // Both arrays must be empty together, because a stem names its hashes by range.
         || (domains.spawnStems.empty()
-                ? !(domains.spawnNameHashes.empty() && domains.spawnPoints.empty())
+                ? !domains.spawnNameHashes.empty()
                 : !spawn_sets::valid(domains.spawnStems, domains.spawnNameHashes))
-        || !spawn_sets::valid_points(domains.spawnPoints, domains.spawnStems)
         // An empty catalog is complete. With no index there is no vendor domain, so the
         // definitions and both row banks must be empty too.
         || (domains.vendorIndex.empty()

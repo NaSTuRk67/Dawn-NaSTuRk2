@@ -82,7 +82,6 @@ struct Header {
     std::uint32_t rosterGroupCount{};
     std::uint32_t spawnStemCount{};
     std::uint32_t spawnNameHashCount{};
-    std::uint32_t spawnPointCount{};
     std::uint32_t hashNameCount{};
     std::uint32_t vendorIndexCount{};
     std::uint32_t vendorDefinitionCount{};
@@ -355,15 +354,6 @@ struct SpawnNameHashRecord {
     std::array<std::uint16_t, spawn_sets::kPackageCapacity> activityPackages{};
 };
 
-/** Disk form of one spawn point and the set it belongs to. */
-struct SpawnPointRecord {
-    std::array<float, spawn_sets::kPositionComponents> position{};
-    std::uint32_t nameHash{};
-    std::uint16_t stemIndex{};
-    /** Must be zero, so the packed point row always matches. */
-    std::array<std::uint8_t, 2> reserved{};
-};
-
 /** Disk form of one vendor index row. */
 struct VendorIndexRecord {
     std::uint32_t definitionHash{};
@@ -446,9 +436,6 @@ static_assert(sizeof(Header)
               == kCacheMagic.size() + 28 * sizeof(std::uint32_t) + 2 * sizeof(std::uint64_t)
                      + 2 * sizeof(core::provenance::Sha256Digest)
                      + sizeof(InvestmentConstants));
-static_assert(sizeof(SpawnPointRecord)
-              == spawn_sets::kPositionComponents * sizeof(float) + sizeof(std::uint32_t)
-                     + sizeof(std::uint16_t) + 2 * sizeof(std::uint8_t));
 static_assert(sizeof(VendorIndexRecord) == 2 * sizeof(std::uint32_t) + 2 * sizeof(std::uint16_t));
 static_assert(sizeof(VendorDefinitionRecord)
               == 14 * sizeof(std::uint32_t) + 4 * sizeof(std::uint16_t));

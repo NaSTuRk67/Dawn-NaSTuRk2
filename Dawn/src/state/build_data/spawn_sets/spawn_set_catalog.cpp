@@ -1,7 +1,6 @@
 #include "spawn_set_catalog.h"
 
 #include <algorithm>
-#include <cmath>
 #include <limits>
 #include <string_view>
 
@@ -10,15 +9,11 @@
 namespace dawn::state::build_data::spawn_sets {
 namespace {
 
-/** Widest world coordinate a point may carry. Maps are far smaller, so this rejects junk only. */
-constexpr float kPositionBound = 1.0e9F;
-
-// One lock covers all three tables. A stem names a hash range and a point names a stem row, so
-// replacing one alone would leave a reader resolving past the end.
+// One lock covers both tables: a stem names a range inside the hash bank, so the pair must move
+// together or a stem could point past the end of the bank a reader sees.
 Lock g_lock;
 Table<Stem, kStemCapacity> g_stems;
 Table<NameHash, kNameHashCapacity> g_nameHashes;
-Table<Point, kPointCapacity> g_points;
 
 /** @param stem Stem row. @return Its bounded logical name. */
 [[nodiscard]] std::string_view name_of(const Stem& stem) noexcept {
@@ -68,40 +63,13 @@ Table<Point, kPointCapacity> g_points;
     return points == stem.pointCount && points <= (std::numeric_limits<std::uint32_t>::max)();
 }
 
-/** Finds one stem row by name, under the caller's lock. @param index Receives its row index. */
-[[nodiscard]] bool stem_index_locked(std::string_view name, std::size_t& index) noexcept {
-    index = 0;
-    const std::span<const Stem> rows = g_stems.rows();
-    const auto found =
-        std::lower_bound(rows.begin(), rows.end(), name, [](const Stem& row, auto key) {
-            return name_of(row) < key;
-        });
-    if (found == rows.end() || name_of(*found) != name) {
-        return false;
-    }
-    index = static_cast<std::size_t>(found - rows.begin());
-    return true;
-}
-
-/** @return The squared distance between two world positions. */
-[[nodiscard]] float distance_squared(const std::array<float, kPositionComponents>& from,
-                                     const std::array<float, kPositionComponents>& to) noexcept {
-    float total = 0.0F;
-    for (std::size_t lane = 0; lane < kPositionComponents; ++lane) {
-        const float delta = to[lane] - from[lane];
-        total += delta * delta;
-    }
-    return total;
-}
-
 } // namespace
 
-/** Clears every extracted stem, name-hash and point row under the catalog lock. */
+/** Clears every extracted stem and name-hash row under the catalog lock. */
 void clear() noexcept {
     const Lock::Exclusive guard(g_lock);
     g_stems.clear();
     g_nameHashes.clear();
-    g_points.clear();
 }
 
 /** Checks one complete spawn-set catalog in canonical stem and hash order. */
@@ -120,34 +88,14 @@ bool valid(std::span<const Stem> stems, std::span<const NameHash> nameHashes) no
     return expectedOffset == nameHashes.size();
 }
 
-/** Checks the point bank against the stems it names. */
-bool valid_points(std::span<const Point> points, std::span<const Stem> stems) noexcept {
-    if (points.size() > kPointCapacity) {
-        return false;
-    }
-    for (const Point& point : points) {
-        if (point.stemIndex >= stems.size()) {
-            return false;
-        }
-        for (const float lane : point.position) {
-            // A not-a-number lane would win every distance comparison it entered.
-            if (!(lane == lane) || lane > kPositionBound || lane < -kPositionBound) {
-                return false;
-            }
-        }
-    }
-    return true;
-}
-
 /** Replaces the complete spawn-set catalog in one step. */
-bool replace(std::span<const Stem> stems,
-             std::span<const NameHash> nameHashes,
-             std::span<const Point> points) noexcept {
-    if (!valid(stems, nameHashes) || !valid_points(points, stems)) {
+bool replace(std::span<const Stem> stems, std::span<const NameHash> nameHashes) noexcept {
+    if (!valid(stems, nameHashes)) {
         return false;
     }
     const Lock::Exclusive guard(g_lock);
-    // All three run with no short-circuit, so the set is never left half replaced.
+    // Both run, with no short-circuit, so the pair cannot be left half replaced. valid() already
+    // checked each against its size, which is the only reason either can refuse.
     const bool storedStems = g_stems.replace(stems);
     const bool storedHashes = g_nameHashes.replace(nameHashes);
     const bool storedPoints = g_points.replace(points);

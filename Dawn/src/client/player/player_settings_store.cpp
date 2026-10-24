@@ -7,6 +7,7 @@
 
 #include <Windows.h>
 
+#include <algorithm>
 #include <array>
 #include <cstddef>
 #include <cstdio>
@@ -21,7 +22,7 @@ namespace {
 /** The module-owned configuration file, beside the generated settings and logs. */
 constexpr std::wstring_view kFileSuffix = L"\\player.json";
 /** The document is a few scalars, so one small buffer covers both reading and writing. */
-constexpr std::size_t kFileCapacity = 256;
+constexpr std::size_t kFileCapacity = 512;
 
 SRWLOCK g_lock{SRWLOCK_INIT};
 Settings g_settings{};
@@ -62,6 +63,19 @@ void boolean_for(std::string_view text, std::string_view key, bool& output) noex
     output = text.substr(begin).starts_with("true");
 }
 
+void persona_for(std::string_view text, std::array<char, 64>& output) noexcept {
+    const std::size_t key = text.find("\"persona_name\"");
+    const std::size_t colon = key == std::string_view::npos ? key : text.find(':', key + 14);
+    const std::size_t quote = colon == std::string_view::npos ? colon : text.find('"', colon + 1);
+    const std::size_t end = quote == std::string_view::npos ? quote : text.find('"', quote + 1);
+    if (quote == std::string_view::npos || end == std::string_view::npos
+        || end == quote + 1 || end - quote - 1 >= output.size()) {
+        return;
+    }
+    output.fill('\0');
+    std::copy_n(text.data() + quote + 1, end - quote - 1, output.data());
+}
+
 /**
  * Layers one document over the defaults. A missing or bad key keeps its default, so a hand-edited
  * file cannot stop the module loading.
@@ -70,6 +84,7 @@ void boolean_for(std::string_view text, std::string_view key, bool& output) noex
  */
 void parse(std::string_view text, Settings& output) noexcept {
     boolean_for(text, "\"infinite_ammo_enabled\"", output.infiniteAmmoEnabled);
+    persona_for(text, output.personaName);
 }
 
 /**
@@ -85,8 +100,9 @@ void parse(std::string_view text, Settings& output) noexcept {
     std::array<char, kFileCapacity> document{};
     const int size = std::snprintf(document.data(),
                                    document.size(),
-                                   "{\n  \"infinite_ammo_enabled\": %s\n}\n",
-                                   settings.infiniteAmmoEnabled ? "true" : "false");
+                                   "{\n  \"infinite_ammo_enabled\": %s,\n  \"persona_name\": \"%s\"\n}\n",
+                                   settings.infiniteAmmoEnabled ? "true" : "false",
+                                   settings.personaName.data());
     if (size <= 0) {
         return false;
     }

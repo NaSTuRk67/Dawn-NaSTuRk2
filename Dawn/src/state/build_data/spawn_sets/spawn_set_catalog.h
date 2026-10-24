@@ -1,6 +1,5 @@
 #pragma once
 
-#include <array>
 #include <cstddef>
 #include <cstdint>
 #include <span>
@@ -25,19 +24,9 @@ void clear() noexcept;
                          std::span<const NameHash> nameHashes) noexcept;
 
 /**
- * Checks the point bank against the stems it names.
- * @param points Candidate point bank in extraction order.
- * @param stems Stem rows the points index into.
- * @return True when every point names a stem in range and carries a finite position.
- */
-[[nodiscard]] bool valid_points(std::span<const Point> points,
-                                std::span<const Stem> stems) noexcept;
-
-/**
  * Replaces the complete spawn-set catalog in one step.
  * @param stems Complete stem rows in ascending name order.
  * @param nameHashes Complete flat bank in stem then hash order.
- * @param points Complete point bank in extraction order, which may be empty.
  * @return True when the catalog passes validation and fits fixed State storage.
  */
 [[nodiscard]] bool replace(std::span<const Stem> stems,

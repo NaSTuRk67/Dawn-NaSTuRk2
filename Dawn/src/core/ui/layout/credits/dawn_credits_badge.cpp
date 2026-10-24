@@ -62,6 +62,7 @@ void draw() noexcept {
     ImGui::TextUnformatted("Built on community contributions");
     ImGui::PopFont(); ImGui::Spacing();
     ImGui::TextWrapped("Dawn is possible because of the research, tools and contributions shared by these projects. Thank you.");
+    ImGui::TextWrapped("NaSTuRk Edition: a custom build of Dawn with experimental Panoptes loadout features, item pictures and NaSTuRk branding.");
     ImGui::Spacing(); ImGui::Separator(); ImGui::Spacing();
     ImGui::TextUnformatted("Original project / stanuwu and contributors");
     ImGui::TextWrapped("Thank you for the foundation, game services, package research and original runtime that Dawn builds on.");

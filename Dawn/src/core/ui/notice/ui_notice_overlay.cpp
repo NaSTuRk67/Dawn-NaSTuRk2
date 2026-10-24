@@ -32,7 +32,7 @@ constexpr float kViewportMargin = 24.0F;
 /** The overlay is centered on the horizontal axis and pinned to the top edge. */
 constexpr ImVec2 kTopCenterPivot{0.5F, 0.0F};
 /** The heading names the owner so the failure is not read as the game's. */
-constexpr char kHeading[] = "Dawn reported a problem";
+constexpr char kHeading[] = "NaSTuRk reported a problem";
 /** The overlay carries no decoration, takes no input, and is never saved. */
 constexpr ImGuiWindowFlags kOverlayFlags =
     ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoInputs | ImGuiWindowFlags_NoNav

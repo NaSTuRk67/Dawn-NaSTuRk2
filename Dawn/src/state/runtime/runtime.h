@@ -291,6 +291,12 @@ initialize(void* module,
 /** Securely clears State, including activity destinations and matchmaking descriptors. */
 void shutdown() noexcept;
 
+/** Saves the current account/loadout snapshot for automatic restoration on the next launch. */
+[[nodiscard]] bool save_account() noexcept;
+
+/** Restores the saved account immediately while preserving the active character selection. */
+[[nodiscard]] bool load_account() noexcept;
+
 /** @return Immutable generated SignOn session fields. */
 [[nodiscard]] const SignOnState& sign_on() noexcept;
 
@@ -362,6 +368,30 @@ struct ItemAcquisitionOptions {
     PendingItemAcquisition& mutation,
     ItemAcquisitionOptions options = {},
     std::span<const build_data::material_requirements::Requirement> cost = {}) noexcept;
+
+/**
+ * Replaces one selected-character item's installed definition while preserving its instance.
+ * The new definition must resolve into the same inventory bucket; sockets return to native
+ * defaults and the complete resulting loadout must validate before publication.
+ */
+[[nodiscard]] bool replace_item_definition(std::uint64_t instanceSoid,
+                                           std::uint32_t definitionHash) noexcept;
+
+/** Atomically selects one authored subclass path's linked Super and melee entries. */
+[[nodiscard]] bool set_subclass_attunement(std::uint8_t superEntry,
+                                           std::uint8_t meleeEntry) noexcept;
+
+/** Atomically selects the complete movement, grenade, path, and class-ability tuple. */
+[[nodiscard]] bool set_subclass_abilities(std::uint8_t movementEntry,
+                                          std::uint8_t grenadeEntry,
+                                          std::uint8_t superEntry,
+                                          std::uint8_t meleeEntry,
+                                          std::uint8_t classEntry) noexcept;
+
+/** Replaces one authored socket hash without enforcing the installed compatibility pool. */
+[[nodiscard]] bool override_socket_plug(std::uint64_t instanceSoid,
+                                        std::uint8_t socketLane,
+                                        std::uint32_t plugDefinitionHash) noexcept;
 
 /**
  * Prepares one installed equippable definition as a new selected-character inventory instance.

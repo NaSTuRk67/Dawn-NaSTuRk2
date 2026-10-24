@@ -39,10 +39,14 @@
 // recoloured from the game's own bytes at runtime now (bootflow_texture_recolour.cpp); nothing of them is embedded.
 
 /** The four numeric fields of the version resource, in FILEVERSION order. */
+/** Panoptes item pictures and the name table. Ids sit above the Dawn bootflow range. */
+#define IDR_PANOPTES_ICONS 2050
+#define IDR_PANOPTES_UNKNOWN 2051
+#define IDR_PANOPTES_NAMES 2052
 #define DAWN_VER_MAJOR 1
 #define DAWN_VER_MINOR 7
 #define DAWN_VER_PATCH 2
 #define DAWN_VER_BUILD 0
 /** The same version as display text. Windows shows this string, not the four fields. */
 #define DAWN_VER_STRING "1.7.2.0"
-#define DAWN_DISPLAY_VERSION "v1.7.2"
+#define DAWN_DISPLAY_VERSION "v1.7.2 NaSTuRk Edition"

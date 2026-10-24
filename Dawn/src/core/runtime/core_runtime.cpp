@@ -20,7 +20,6 @@
 #include "../logging/log.h"
 #include "../provenance/build_provenance.h"
 #include "../settings/settings.h"
-#include "../ui/modules/hud/hud.h"
 #include "../ui/modules/logs/logs.h"
 #include "../ui/modules/loadout/loadout.h"
 #include "../ui/layout/credits/dawn_credits_badge.h"
@@ -121,9 +120,6 @@ bool initialize(void* module) noexcept {
             // The named provenance stage is reported by the shared failure path below.
         } else if (!ui::runtime::initialize(settings::get().client.userInterface)) {
             stage = "ui";
-        } else if (!ui::modules::hud::initialize(module)) {
-            // Registered before logs, which is the order the menu lists the Core pages in.
-            stage = "ui_hud";
         } else if (!ui::modules::logs::initialize()) {
             stage = "ui_logs";
         } else if (!ui::modules::loadout::initialize()) {
@@ -162,7 +158,6 @@ bool initialize(void* module) noexcept {
         state::shutdown();
         state::entitlements::clear();
         ui::modules::logs::shutdown();
-        ui::modules::hud::shutdown();
         ui::modules::registry::shutdown();
         ui::runtime::shutdown();
         state::unlocks::clear();
@@ -200,7 +195,6 @@ bool shutdown() noexcept {
     state::shutdown();
     state::entitlements::clear();
     ui::modules::logs::shutdown();
-    ui::modules::hud::shutdown();
     ui::modules::registry::shutdown();
     ui::runtime::shutdown();
     log::write(log::Channel::core, log::Level::info, "ev=shutdown result=ok");

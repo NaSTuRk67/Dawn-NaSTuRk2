@@ -47,10 +47,10 @@ constexpr float kHorizontalPaddingCount = 2.0F;
 /** One heading per task, in Task order. Each names the owner, so the stall is not read as
  * the game hanging. */
 constexpr std::array<const char*, static_cast<std::size_t>(Task::count)> kHeadings{
-    "Dawn Indexing",
-    "Dawn Initializing",
+    "NaSTuRk Indexing",
+    "NaSTuRk Initializing",
     "",
-    "Dawn Caching",
+    "NaSTuRk Caching",
 };
 /** The detail line is the same for every task: what the user should do, not what runs. */
 constexpr char kDetail[] = "Please be patient and do not close the game.";

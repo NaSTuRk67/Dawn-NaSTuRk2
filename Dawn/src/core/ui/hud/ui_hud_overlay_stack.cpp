@@ -45,7 +45,7 @@ constexpr std::size_t kSwitchCount = kOverlayCount + kStatusLineCount;
 
 /** Every overlay, in Overlay order. The menu lists them and the corner stacks them in it. */
 constexpr std::array<Entry, kOverlayCount> kOverlays{
-    Entry{"Dawn Card", "dawn_card", "##dawn_hud_card", &overlays::logo::draw, true},
+    Entry{"NaSTuRk Card", "nasturk_card", "##nasturk_hud_card", &overlays::logo::draw, true},
     // Both start off: they report what the server is doing, which no ordinary run needs on screen.
     Entry{
         "Current Status", "current_status", "##dawn_hud_status", &overlays::status::draw, false},

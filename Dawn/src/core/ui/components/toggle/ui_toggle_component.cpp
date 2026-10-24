@@ -6,7 +6,6 @@
 #include "../../animation/transition/ui_transition_animation.h"
 #include "../../scaling/dpi/ui_dpi_scaling.h"
 #include "../drawing/drawing.h"
-#include "../label/ui_label_component.h"
 
 namespace dawn::core::ui::components::toggle {
 namespace {
@@ -25,6 +24,8 @@ constexpr float kThumbInset = 3.0F;
 constexpr float kThumbRadius = 7.0F;
 /** 8 authored pixels round the row without making it pill-shaped. */
 constexpr float kRowRounding = 8.0F;
+/** 10 authored pixels keep labels away from the row edge. */
+constexpr float kLabelInset = 10.0F;
 /** 8 authored pixels keep long labels from touching the switch track. */
 constexpr float kLabelTrackSpacing = 8.0F;
 /** One authored pixel holds the track shape over active and inactive fills. */
@@ -109,8 +110,7 @@ bool control(const char* label, bool& value, float width) noexcept {
         {thumbX, thumbY}, thumbRadius, ImGui::GetColorU32(style.Colors[ImGuiCol_Text]));
 
     const ImVec2 textSize = ImGui::CalcTextSize(label, nullptr, true);
-    // Qualified from the parent namespace, because the label parameter hides the namespace name.
-    const ImVec2 textPosition{position.x + components::label::inset(),
+    const ImVec2 textPosition{position.x + scaling::dpi::pixels(kLabelInset),
                               position.y + ((controlHeight - textSize.y) * 0.5F)};
     const float textMaximumX = trackX - scaling::dpi::pixels(kLabelTrackSpacing);
     if (textMaximumX > textPosition.x) {

@@ -11,6 +11,7 @@
 #include <span>
 
 #include "../../core/logging/log.h"
+#include "../../core/filesystem/path.h"
 #include "../../core/settings/settings.h"
 #include "../activity/defaults/activity_defaults_validation.h"
 #include "../activity/nightfall/completion_reward.h"
@@ -46,6 +47,41 @@ constexpr std::uint32_t kDefaultTokenLifetimeSeconds = 3600;
 /** Family 5 uses the largest signed 64-bit value as its process-global object key. */
 constexpr std::uint64_t kGlobalFamily5Soid =
     static_cast<std::uint64_t>((std::numeric_limits<std::int64_t>::max)());
+constexpr std::wstring_view kLoadoutSaveSuffix = L"\\loadout.save";
+constexpr std::array<char, 8> kLoadoutSaveMagic{'S', 'U', 'N', 'L', 'O', 'A', 'D', '1'};
+core::path::Buffer g_loadoutSavePath{};
+bool g_loadoutSavePathReady{};
+
+struct LoadoutSave {
+    std::array<char, 8> magic{};
+    std::uint32_t version{};
+    std::uint32_t accountSize{};
+    AccountState account{};
+};
+
+[[nodiscard]] bool load_saved_account(AccountState& output) noexcept {
+    if (!g_loadoutSavePathReady) {
+        return false;
+    }
+    const HANDLE file = CreateFileW(g_loadoutSavePath.chars.data(), GENERIC_READ, FILE_SHARE_READ,
+                                    nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
+    if (file == INVALID_HANDLE_VALUE) {
+        return false;
+    }
+    LoadoutSave saved{};
+    DWORD read{};
+    const bool readOkay = ReadFile(file, &saved, sizeof(saved), &read, nullptr) != FALSE
+                          && read == sizeof(saved);
+    const bool closed = CloseHandle(file) != FALSE;
+    const bool okay = readOkay && closed && saved.magic == kLoadoutSaveMagic
+                      && saved.version == 1 && saved.accountSize == sizeof(AccountState)
+                      && account::valid(saved.account);
+    if (!okay) {
+        return false;
+    }
+    output = saved.account;
+    return true;
+}
 /**
  * Fills fixed secret storage with Windows system randomness.
  * @tparam Size Required secret byte count.
@@ -210,7 +246,16 @@ bool initialize(void* module, const AccountState& initialAccount) noexcept {
 bool initialize(void* module,
                 const AccountState& initialAccount,
                 const activity::defaults::ActivityDefaults& activityDefaults) noexcept {
+    g_loadoutSavePath = {};
+    g_loadoutSavePathReady = module != nullptr
+                             && core::path::artifact_directory(module, g_loadoutSavePath)
+                             && core::path::append(g_loadoutSavePath, kLoadoutSaveSuffix);
     AccountState runtimeAccount = initialAccount;
+    if (load_saved_account(runtimeAccount)) {
+        for (std::size_t index = 0; index < runtimeAccount.characterCount; ++index) {
+            runtimeAccount.characters[index].selected = false;
+        }
+    }
     if (!seed_inventory_runtime_fields(runtimeAccount)
         || !activity::defaults::valid(activityDefaults)) {
         return false;
@@ -337,6 +382,64 @@ void shutdown() noexcept {
     newlightPending=false;
     ReleaseSRWLockExclusive(&runtime::storage::g_stateLock);
     build_data::shutdown();
+    g_loadoutSavePath = {};
+    g_loadoutSavePathReady = false;
+}
+
+bool save_account() noexcept {
+    if (!g_loadoutSavePathReady) {
+        return false;
+    }
+    LoadoutSave saved{kLoadoutSaveMagic, 1, sizeof(AccountState), account_snapshot()};
+    if (!account::valid(saved.account)) {
+        return false;
+    }
+    core::path::Buffer stage = g_loadoutSavePath;
+    if (!core::path::append(stage, L".new")) {
+        return false;
+    }
+    const HANDLE file = CreateFileW(stage.chars.data(), GENERIC_WRITE, 0, nullptr, CREATE_ALWAYS,
+                                    FILE_ATTRIBUTE_NORMAL, nullptr);
+    if (file == INVALID_HANDLE_VALUE) {
+        return false;
+    }
+    DWORD written{};
+    bool okay = WriteFile(file, &saved, sizeof(saved), &written, nullptr) != FALSE
+                && written == sizeof(saved);
+    okay = CloseHandle(file) != FALSE && okay;
+    okay = okay && MoveFileExW(stage.chars.data(), g_loadoutSavePath.chars.data(),
+                               MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH) != FALSE;
+    if (!okay) {
+        (void)DeleteFileW(stage.chars.data());
+    }
+    return okay;
+}
+
+bool load_account() noexcept {
+    AccountState loaded{};
+    if (!load_saved_account(loaded)) {
+        return false;
+    }
+    const AccountState current = account_snapshot();
+    std::uint64_t selectedSoid{};
+    for (std::size_t index = 0; index < current.characterCount; ++index) {
+        if (current.characters[index].selected) {
+            selectedSoid = current.characters[index].soid;
+            break;
+        }
+    }
+    bool selectedFound = selectedSoid == 0;
+    for (std::size_t index = 0; index < loaded.characterCount; ++index) {
+        loaded.characters[index].selected = loaded.characters[index].soid == selectedSoid;
+        selectedFound = selectedFound || loaded.characters[index].selected;
+    }
+    if (!selectedFound || !account::valid(loaded)) {
+        return false;
+    }
+    AcquireSRWLockExclusive(&runtime::storage::g_stateLock);
+    runtime::storage::g_state.account = loaded;
+    ReleaseSRWLockExclusive(&runtime::storage::g_stateLock);
+    return true;
 }
 
 /** @return Immutable generated SignOn session fields. */

@@ -41,6 +41,11 @@ std::size_t publish_external_account_mutation() noexcept;
 
 /** Best-effort nonblocking retry used after a group lineage pin is released. */
 void retry_pending_activity_retirements() noexcept;
+ * Arms a full Family-4 account refresh for every authenticated active client.
+ * UI-originated account edits use this because they have no request session to publish through.
+ * @return True when at least one active client was armed.
+ */
+[[nodiscard]] bool request_account_refresh() noexcept;
 
 /** Wipes every connection-owned nonce and transform buffer. */
 void shutdown() noexcept;

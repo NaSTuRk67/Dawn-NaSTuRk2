@@ -11,15 +11,12 @@
 #include <cstdio>
 #include <imgui.h>
 
-#include "../../../core/ui/components/label/ui_label_component.h"
 #include "../../../core/ui/components/toggle/ui_toggle_component.h"
 #include "../../movement/movement_settings_store.h"
 #include "../../../state/activity/nightfall/rules.h"
 
 namespace dawn::client::ui::movement {
 namespace {
-
-namespace label = core::ui::components::label;
 
 /** Lowest and highest virtual keys the picker scans. Zero is not a key. */
 constexpr int kFirstVirtualKey = 1;
@@ -151,11 +148,10 @@ void draw() noexcept {
     ImGui::Spacing();
     // One label column and one control column, so the slider and key buttons share both edges.
     const float labelWidth =
-        label::inset() + ImGui::CalcTextSize("Toggle key").x + ImGui::GetStyle().ItemSpacing.x * 2;
+        ImGui::CalcTextSize("Toggle key").x + ImGui::GetStyle().ItemSpacing.x * 2;
     const float controlWidth = ImGui::GetContentRegionAvail().x - labelWidth;
 
     ImGui::AlignTextToFramePadding();
-    label::align();
     ImGui::TextUnformatted("Distance");
     ImGui::SameLine(labelWidth);
     ImGui::SetNextItemWidth(controlWidth);
@@ -171,7 +167,6 @@ void draw() noexcept {
 
     ImGui::Spacing();
     ImGui::AlignTextToFramePadding();
-    label::align();
     ImGui::TextUnformatted("Key");
     ImGui::SameLine(labelWidth);
     changed = key_picker("teleport_key", CaptureTarget::teleport, settings.virtualKey, controlWidth)
@@ -189,7 +184,6 @@ void draw() noexcept {
 
     ImGui::Spacing();
     ImGui::AlignTextToFramePadding();
-    label::align();
     ImGui::TextUnformatted("Toggle key");
     ImGui::SameLine(labelWidth);
     changed =
@@ -208,7 +202,6 @@ void draw() noexcept {
 
     ImGui::Spacing();
     ImGui::AlignTextToFramePadding();
-    label::align();
     ImGui::TextUnformatted("Toggle key");
     ImGui::SameLine(labelWidth);
     changed =
@@ -216,7 +209,6 @@ void draw() noexcept {
 
     ImGui::Spacing();
     ImGui::AlignTextToFramePadding();
-    label::align();
     ImGui::TextUnformatted("Speed");
     ImGui::SameLine(labelWidth);
     ImGui::SetNextItemWidth(controlWidth);

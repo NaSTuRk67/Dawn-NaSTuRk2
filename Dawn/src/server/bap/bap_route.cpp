@@ -703,6 +703,25 @@ bool consume(const client::network::BapRequest& request,
     return success;
 }
 
+/** Arms every active client to receive the current account on its next deferred-push poll. */
+bool request_account_refresh() noexcept {
+    AcquireSRWLockExclusive(&g_lock);
+    g_accountGeneration = g_accountGeneration == (std::numeric_limits<std::uint64_t>::max)()
+                              ? 1
+                              : g_accountGeneration + 1;
+    std::size_t armed = 0;
+    for (Session& session : g_sessions) {
+        if (session.id == 0 || !session.authenticated || !session.queuez.family4Active) {
+            continue;
+        }
+        session.accountResyncGeneration = g_accountGeneration;
+        session.accountResyncArmed = true;
+        ++armed;
+    }
+    ReleaseSRWLockExclusive(&g_lock);
+    return armed != 0;
+}
+
 /** Securely erases every connection-owned nonce and transform buffer. */
 void shutdown() noexcept {
     AcquireSRWLockExclusive(&g_lock);

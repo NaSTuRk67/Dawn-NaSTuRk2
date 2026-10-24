@@ -12,12 +12,11 @@
 namespace dawn::client::ui::runtime {
 namespace {
 
-/** Namespaced stable IDs prevent Client modules from colliding with Server modules. */
+/** Namespaced stable ID prevents Client modules from colliding with Server modules. */
 constexpr std::string_view kMovementStableId = "client.movement";
 constexpr std::string_view kPlayerStableId = "client.player";
 /** Short menu label for the shared teleport and noclip page. */
 constexpr std::string_view kMovementDisplayName = "Movement";
-/** Short menu label for the player page. */
 constexpr std::string_view kPlayerDisplayName = "Player";
 
 core::ui::modules::registry::PageRegistration g_cameraPage;
@@ -40,7 +39,7 @@ bool initialize() noexcept {
     return movementOwned && playerOwned && missionLaunchOwned && cameraOwned;
 }
 
-/** Removes the Client modules from the Core UI registry. */
+/** Removes the Client module from the Core UI registry. */
 void shutdown() noexcept {
     g_cameraPage.release();
     g_missionLaunchPage.release();

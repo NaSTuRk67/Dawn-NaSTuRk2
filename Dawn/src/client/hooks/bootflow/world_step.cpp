@@ -105,24 +105,10 @@ constexpr auto kStepSignature = signature<signature_length(kStepSignatureText)>(
 constexpr std::int32_t kActivityLoadFirst = 33;
 /** `activity:in_world`. The fade is armed by then, so a spawn now releases it. */
 constexpr std::int32_t kInWorld = 38;
-/** No step has been published. */
-constexpr std::int32_t kNoStep = -1;
-/** A published step older than this says nothing: the tick that publishes it has stopped. */
-constexpr std::uint64_t kStepStaleMs = 1'000;
 
 using GetStep = std::int64_t(__fastcall*)() noexcept;
 
 std::atomic<GetStep> g_step{nullptr};
-/** Last step the frame poll read, for readers that are not on the game thread. */
-std::atomic_int32_t g_publishedStep{kNoStep};
-/** Tick that step was read on. A stale value reads as out of world. */
-std::atomic_uint64_t g_publishedTick{0};
-
-/** @return The current step, or the absent one when the accessor is missing. */
-[[nodiscard]] std::int32_t read_step() noexcept {
-    const GetStep read = g_step.load(std::memory_order_acquire);
-    return read == nullptr ? kNoStep : static_cast<std::int32_t>(read() & 0xFFFFFFFF);
-}
 
 } // namespace
 
@@ -168,11 +154,11 @@ bool in_world() noexcept {
 
 /** Maps the client's own boot-flow step onto the world phase. */
 void observe_world_step() noexcept {
-    // A missing accessor leaves the phase alone. A step of -1 is a real answer: off a destination.
-    if (g_step.load(std::memory_order_acquire) == nullptr) {
+    const GetStep read = g_step.load(std::memory_order_acquire);
+    if (read == nullptr) {
         return;
     }
-    const std::int32_t step = read_step();
+    const auto step = static_cast<std::int32_t>(read() & 0xFFFFFFFF);
     state::activity::WorldPhase phase = state::activity::WorldPhase::idle;
     if (step == kInWorld) {
         phase = state::activity::WorldPhase::arrived;

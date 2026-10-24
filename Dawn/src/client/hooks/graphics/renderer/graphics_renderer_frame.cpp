@@ -7,7 +7,6 @@
 
 #include "../../../../core/ui/busy/busy.h"
 #include "../../../../core/ui/fonts/runtime/ui_runtime_font_lifecycle.h"
-#include "../../../../core/ui/hud/overlay.h"
 #include "../../../../core/ui/layout/layout.h"
 #include "../../../../core/ui/notice/ui_notice_overlay.h"
 #include "../../../../core/ui/runtime/ui_visibility_runtime.h"

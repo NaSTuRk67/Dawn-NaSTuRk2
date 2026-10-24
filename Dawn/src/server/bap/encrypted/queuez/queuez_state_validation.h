@@ -33,8 +33,8 @@ namespace dawn::server::bap::encrypted::queuez {
 
 /**
  * Decides whether one family-zero subscription publishes, and as which kind of frame.
- * A repeat naming the character the pair already holds reports no publish and no version bump.
- * Both callers send anyway, so the answer is which frame to build, not whether to answer.
+ * Retail sets the full-snapshot flag once per family and adds one to every later push, so a
+ * repeat that changes nothing is not sent at all.
  * @param before Current queuez state owned by the peer.
  * @param selectedCharacter Character the family-zero pair names now.
  * @param publish Gets whether a frame is needed.

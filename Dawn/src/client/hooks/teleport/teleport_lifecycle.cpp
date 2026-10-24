@@ -254,7 +254,6 @@ bool uninstall() noexcept {
     clear_targets();
     clear_action_keys();
     hooks::fly::reset();
-    client::player::position::reset();
     polled_input::release_key();
     g_physicsOriginal.store(nullptr, std::memory_order_release);
     g_cameraOriginal.store(nullptr, std::memory_order_release);

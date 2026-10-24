@@ -52,8 +52,7 @@ namespace dawn::server::gameplay::group {
  * id only at this gameplay compatibility boundary.
  * @return Allocated current session id, or zero while State cannot allocate one yet.
  */
-[[nodiscard]] std::uint64_t activity_host_session(std::uint64_t groupSessionId,
-                                                  std::int32_t regionIndex) noexcept;
+[[nodiscard]] std::uint64_t activity_host_session(std::uint64_t groupSessionId) noexcept;
 
 /**
  * Reports one region's activity session and whether it holds a table slot at all.

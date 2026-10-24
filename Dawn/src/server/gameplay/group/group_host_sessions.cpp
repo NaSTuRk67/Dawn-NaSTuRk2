@@ -34,8 +34,6 @@ struct HostSession {
     /** Exact source activity lifetime whose destination this advertised host must mirror. */
     state::activity::ActivityInstanceKey sourceActivity{};
     std::uint64_t lastUse{};
-    /** Region the advertisement named. The interface reads it; no lookup uses it. */
-    std::int32_t regionIndex{};
     bool occupied{};
     /** Opaque row identity changes whenever a slot is repurposed. */
     std::uint64_t generation{};
@@ -375,8 +373,7 @@ void snapshot_host_sessions(std::span<HostSessionRow> output, std::size_t& count
 }
 
 /** Reports one region's activity session, asking the gameplay slice to allocate a missing one. */
-std::uint64_t activity_host_session(std::uint64_t groupSessionId,
-                                    std::int32_t regionIndex) noexcept {
+std::uint64_t activity_host_session(std::uint64_t groupSessionId) noexcept {
     bool claimed = false;
     return activity_host_session(
         groupSessionId, regionIndex, state::activity::kAbsentSessionId, claimed);

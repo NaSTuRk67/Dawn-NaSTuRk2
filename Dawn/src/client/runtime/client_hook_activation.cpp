@@ -34,6 +34,7 @@
 #include "../hooks/probes/stall_probe/stall_probe.h"
 #include "../hooks/queuez/queuez_hook_lifecycle.h"
 #include "../hooks/retail_log/retail_log_lifecycle.h"
+#include "../hooks/spawn/spawn_runtime.h"
 #include "../hooks/teleport/runtime.h"
 #include "../patterns/registry.h"
 #include "../targets/game.h"
@@ -210,9 +211,11 @@ void clear_game_targets() noexcept {
     if (hooks::teleport::install()) {
         (void)hooks::camera::install();
     }
+    // Spawn hooks are independent of teleport, so a miss does not block either.
+    (void)hooks::spawn::install();
     // Noclip owns its Havok-step target, so a patch-specific miss cannot disable teleport.
     (void)hooks::noclip::install();
-    // Attaches whether or not the feature is on, so the interface can enable it without a restart.
+    // Attach at startup so the Player page can toggle infinite ammo without a restart.
     (void)hooks::infinite_ammo::install();
     (void)hooks::queuez::install();
     // The bitmap reference guard puts the none sentinel in place of a reference outside tag
@@ -259,7 +262,7 @@ bool activate_main_once() noexcept {
                          core::log::Level::error,
                          "ev=activate stage=main result=fail");
         // The boot cannot reach orbit after this, so the user is told rather than left waiting.
-        core::ui::notice::raise("Dawn could not attach to the game. The boot will not finish.");
+        core::ui::notice::raise("NaSTuRk could not attach to the game. The boot will not finish.");
         ReleaseSRWLockExclusive(&runtime::g_lock);
         return false;
     }

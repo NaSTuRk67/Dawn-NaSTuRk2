@@ -8,6 +8,7 @@
 
 #include <array>
 #include <atomic>
+#include <cmath>
 #include <cstddef>
 #include <cstdint>
 #include <cstdio>
@@ -73,6 +74,7 @@ CameraSingleton g_cameraSingleton{};
 
 /** Written by the camera hook and read by the physics hook. Both run on the same thread. */
 std::array<float, kVectorLanes> g_forward{};
+std::array<float, kVectorLanes> g_cameraPosition{};
 
 /**
  * Reads one value out of game memory without faulting on a torn pointer.
@@ -434,6 +436,53 @@ void clear_targets() noexcept {
     g_hopSetHash.store(0, std::memory_order_release);
 }
 
+bool is_controlled_object(const void* object) noexcept {
+    if (object == nullptr || g_controlledHandle == nullptr) {
+        return false;
+    }
+    std::uint32_t controlled = kInvalidHandle;
+    std::uint32_t candidate = kInvalidHandle;
+    g_controlledHandle(&controlled);
+    constexpr std::size_t kObjectHandle = 0x2C;
+    return controlled != kInvalidHandle
+           && read_at(static_cast<const std::byte*>(object) + kObjectHandle, candidate)
+           && (controlled & kHandleIndexMask) == (candidate & kHandleIndexMask);
+}
+
+bool current_position(std::array<float, 3>& output) noexcept {
+    output = {};
+    std::byte* const physics = g_playerComponent.load(std::memory_order_acquire);
+    if (physics == nullptr || g_controlledHandle == nullptr || !owns_player(physics)) {
+        return false;
+    }
+    std::byte* const body = body_of(physics);
+    return body != nullptr && read_at(body + kBodyPositionX, output);
+}
+
+bool current_controlled_handle(std::uint32_t& output) noexcept {
+    output = kInvalidHandle;
+    if (g_controlledHandle == nullptr) {
+        return false;
+    }
+    g_controlledHandle(&output);
+    return output != kInvalidHandle;
+}
+
+bool current_camera_pose(std::array<float, 3>& position,
+                         std::array<float, 3>& forward) noexcept {
+    position = g_cameraPosition;
+    forward = g_forward;
+    if (!g_forwardValid.load(std::memory_order_acquire)) {
+        return false;
+    }
+    for (std::size_t lane = 0; lane < kVectorLanes; ++lane) {
+        if (!std::isfinite(position[lane]) || !std::isfinite(forward[lane])) {
+            return false;
+        }
+    }
+    return true;
+}
+
 /** Publishes the camera forward vector for the physics tick that follows. */
 void capture_forward(std::uint32_t playerIndex) noexcept {
     if (state::activity::nightfall::movement_blocked()) g_faceFrames.store(0,std::memory_order_release);
@@ -444,11 +493,15 @@ void capture_forward(std::uint32_t playerIndex) noexcept {
     if (camera == nullptr) {
         return;
     }
+    const std::byte* const block = camera + kCameraBlockStride * playerIndex;
     std::array<float, kVectorLanes> forward{};
-    if (!read_at(camera + kCameraBlockStride * playerIndex + kCameraForwardX, forward)) {
+    std::array<float, kVectorLanes> position{};
+    if (!read_at(block + kCameraForwardX, forward)
+        || !read_at(block + kCameraPositionX, position)) {
         return;
     }
     g_forward = forward;
+    g_cameraPosition = position;
     g_forwardValid.store(true, std::memory_order_release);
     // Pending view-direction request: the camera state stores the aim as forward-vector
     // copies (block +76, +1468, +2456; calibration found no yaw scalar, only the +1480 pitch),
@@ -565,11 +618,6 @@ void force_pending() noexcept {
     invoke_sync(physics);
     core::log::write(
         core::log::Channel::client, core::log::Level::info, "ev=teleport stage=force result=ok");
-}
-
-/** Reports the physics component the local player was last seen driving. */
-void* local_player_component() noexcept {
-    return g_playerComponent.load(std::memory_order_relaxed);
 }
 
 /** @param component Candidate physics component. @return True when the local player drives it. */

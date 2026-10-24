@@ -18,7 +18,7 @@ void draw_title() noexcept {
     if (components::logo::draw(extent)) { ImGui::SameLine(0, 14.0F * scale); }
     ImGui::BeginGroup();
     ImGui::PushFont(nullptr, ImGui::GetStyle().FontSizeBase * 1.5F);
-    ImGui::TextUnformatted("D A W N");
+    ImGui::TextUnformatted("N A S T U R K");
     ImGui::PopFont();
     ImGui::EndGroup();
     ImGui::SameLine(0, 12.0F * scale);
@@ -61,7 +61,7 @@ bool render(bool visible) noexcept {
     }
     constexpr auto flags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize
         | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoTitleBar;
-    const bool open = ImGui::Begin("Dawn", nullptr, flags);
+    const bool open = ImGui::Begin("NaSTuRk", nullptr, flags);
     // Only the window takes the small margin; the popups, tooltips and sheets it opens keep the theme's.
     if (loadout) {
         ImGui::PopStyleVar();

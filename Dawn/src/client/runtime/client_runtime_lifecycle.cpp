@@ -22,9 +22,11 @@
 #include "../hooks/probes/stall_probe/stall_probe.h"
 #include "../hooks/queuez/queuez_hook_lifecycle.h"
 #include "../hooks/retail_log/retail_log_lifecycle.h"
+#include "../hooks/spawn/spawn_runtime.h"
 #include "../hooks/teleport/runtime.h"
 #include "../movement/movement_settings_store.h"
 #include "../player/player_settings_store.h"
+#include "../spawn/spawn_keybind_store.h"
 #include "../targets/game.h"
 #include "../targets/steam_targets.h"
 #include "../ui/runtime/client_ui_module_runtime.h"
@@ -35,10 +37,11 @@ namespace dawn::client {
 
 /** Initializes Client-owned process state without installing hooks. */
 bool initialize(void* module) noexcept {
-    // Loaded before the pages register, so each page draws saved values on its first frame.
+    // Loaded before the pages register, so the movement page draws saved values on its first frame.
     movement::initialize(module);
     camera::initialize(module);
     player::initialize(module);
+    spawn::initialize(module);
     return ui::runtime::initialize();
 }
 
@@ -134,6 +137,8 @@ bool shutdown() noexcept {
     hooks::bitmap::uninstall();
     hooks::infinite_ammo::uninstall();
     hooks::noclip::uninstall();
+    hooks::spawn::uninstall();
+    hooks::teleport::uninstall();
     hooks::queuez::uninstall();
     if (!hooks::config_getter::uninstall()) {
         ReleaseSRWLockExclusive(&runtime::g_lock);
@@ -181,6 +186,7 @@ bool shutdown() noexcept {
     ui::runtime::shutdown();
     player::shutdown();
     camera::shutdown();
+    spawn::shutdown();
     movement::shutdown();
     core::log::write(core::log::Channel::client, core::log::Level::info, "ev=shutdown result=ok");
     ReleaseSRWLockExclusive(&runtime::g_lock);

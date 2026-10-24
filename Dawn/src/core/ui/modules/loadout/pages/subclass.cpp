@@ -218,7 +218,7 @@ void draw_ability_group(float labelWidth, float controlWidth) noexcept {
         return;
     }
     if (definition->abilities[0].empty()) {
-        ImGui::TextDisabled("Dawn could not read this subclass's abilities.");
+        ImGui::TextDisabled("NaSTuRk could not read this subclass's abilities.");
         return;
     }
     // The super and the melee lanes follow the attunement, so only the lanes the game lets a

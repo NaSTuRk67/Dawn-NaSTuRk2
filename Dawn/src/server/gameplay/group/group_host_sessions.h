@@ -1,8 +1,6 @@
 #pragma once
 
-#include <cstddef>
 #include <cstdint>
-#include <span>
 
 #include "../../../state/activity/lifecycle_generation.h"
 

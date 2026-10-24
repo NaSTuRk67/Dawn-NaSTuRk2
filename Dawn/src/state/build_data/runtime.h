@@ -1,6 +1,5 @@
 #pragma once
 
-#include <array>
 #include <cstddef>
 #include <cstdint>
 #include <span>
@@ -404,7 +403,6 @@ publish_scenario_layouts(std::span<const scenarios::Definition> definitions,
  * Publishes the spawn-set catalog extracted from the installed packages, in one step.
  * @param stems Complete stem rows in ascending name order, or an empty complete catalog.
  * @param nameHashes Complete flat bank in stem then hash order.
- * @param points Complete point bank in extraction order, which may be empty.
  * @return True when the rows pass the checks and any needed cache write succeeds.
  */
 [[nodiscard]] bool publish_spawn_sets(std::span<const spawn_sets::Stem> stems,

@@ -187,15 +187,14 @@ bool spawn_sets_ready() noexcept {
 
 /** Publishes the spawn-set catalog extracted from the installed packages, in one step. */
 bool publish_spawn_sets(std::span<const spawn_sets::Stem> stems,
-                        std::span<const spawn_sets::NameHash> nameHashes,
-                        std::span<const spawn_sets::Point> points) noexcept {
+                        std::span<const spawn_sets::NameHash> nameHashes) noexcept {
     runtime::persistence::Transaction transaction;
     if (!transaction.active()) {
         return false;
     }
     // An empty catalog is complete. It is what a build with no installed spawn set means.
-    const bool replaced = stems.empty() ? nameHashes.empty() && points.empty()
-                                        : spawn_sets::replace(stems, nameHashes, points);
+    const bool replaced =
+        stems.empty() ? nameHashes.empty() : spawn_sets::replace(stems, nameHashes);
     if (!replaced) {
         return transaction.finish(false, rollback_spawn_catalog_publication);
     }

@@ -117,7 +117,7 @@ void draw_bindings() noexcept {
         }
         ImGui::EndTable();
     }
-    if (g_reservedKey) { ImGui::TextWrapped("That key opens Dawn. Choose another key."); }
+    if (g_reservedKey) { ImGui::TextWrapped("That key opens NaSTuRk. Choose another key."); }
     if (ImGui::Button("Reset key bindings")) {
         settings::reset_bindings();
         g_capturing = Action::count;
@@ -150,7 +150,7 @@ void draw() noexcept {
     if (ImGui::Checkbox("Remove HUD and player", &clean)) { settings::set_camera_only(clean); }
     ImGui::EndDisabled();
     ImGui::TextWrapped("Hide the game HUD and your character and weapon models. "
-                       "Works in any camera mode; resets off each launch. Dawn's menu stays available.");
+                       "Works in any camera mode; resets off each launch. NaSTuRk's menu stays available.");
     if (!cleanAvailable) { ImGui::TextWrapped("Camera-only visibility is unavailable in this session."); }
     ImGui::Spacing();
     ImGui::Spacing();

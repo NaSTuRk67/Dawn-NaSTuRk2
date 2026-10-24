@@ -32,6 +32,15 @@ void publish_targets(ControlledHandle controlled, CameraSingleton singleton) noe
 /** Drops those functions and every latched request. */
 void clear_targets() noexcept;
 
+[[nodiscard]] bool is_controlled_object(const void* object) noexcept;
+
+[[nodiscard]] bool current_position(std::array<float, 3>& output) noexcept;
+
+[[nodiscard]] bool current_controlled_handle(std::uint32_t& output) noexcept;
+
+[[nodiscard]] bool current_camera_pose(std::array<float, 3>& position,
+                                       std::array<float, 3>& forward) noexcept;
+
 /**
  * Attaches the camera and physics hooks that carry the teleport.
  * @return True when all three targets were found and both detours attached.
@@ -103,13 +112,6 @@ void apply_pending(void* component) noexcept;
  * @return True when the body was found and read.
  */
 [[nodiscard]] bool read_position(void* component, Vector& position) noexcept;
-
-/**
- * Reports the physics component the local player was last seen driving.
- * The sync stops for a player at rest, so a frame poll has no other way back to them.
- * @return That component, or null before the player has been seen. Prove it before use.
- */
-[[nodiscard]] void* local_player_component() noexcept;
 
 /**
  * Writes the world position of the body a physics component drives.

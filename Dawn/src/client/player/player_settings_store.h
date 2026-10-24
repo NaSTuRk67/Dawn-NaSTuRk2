@@ -1,10 +1,13 @@
 #pragma once
 
+#include <array>
+
 namespace dawn::client::player {
 
 /** Runtime player configuration. This module owns it; Core settings do not carry it. */
 struct Settings {
     bool infiniteAmmoEnabled{false};
+    std::array<char, 64> personaName{};
 };
 
 /**

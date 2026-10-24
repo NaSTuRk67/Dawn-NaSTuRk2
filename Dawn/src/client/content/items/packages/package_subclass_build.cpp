@@ -13,6 +13,16 @@ namespace domain = state::build_data::abilities;
 /** The authored equipment slot that holds the subclass. */
 constexpr std::size_t kSubclassSlot =
     static_cast<std::size_t>(state::account::inventory::EquipmentSlot::subclass);
+/** Every shipped Light subclass, prepared at its compatible default ability selection. */
+struct ShippedSubclass {
+    std::uint32_t hash;
+    std::uint8_t thirdSuperEntry;
+};
+constexpr std::array<ShippedSubclass, 9> kShippedSubclasses{{
+    {0xC99B33E9U, 10}, {0xB0554739U, 20}, {0xB920CE9AU, 20},
+    {0x4F91DC97U, 10}, {0xD8B8D1FCU, 20}, {0xC0483D8BU, 20},
+    {0xCF88FEA5U, 20}, {0x686A154AU, 20}, {0xE7BC88B0U, 20},
+}};
 
 /**
  * Finds the socket entry list that carries one character's subclass abilities.

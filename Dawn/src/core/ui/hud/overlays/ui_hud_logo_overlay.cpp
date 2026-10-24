@@ -17,7 +17,7 @@ constexpr float kTextRowCount = 2.0F;
 /** Half a difference centers the shorter column against the taller one. */
 constexpr float kHalfExtent = 2.0F;
 /** The card names the tool with the same wordmark the main surface carries. */
-constexpr char kTitle[] = "DAWN";
+constexpr char kTitle[] = "NASTURK";
 
 } // namespace
 

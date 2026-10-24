@@ -29,6 +29,11 @@ IDR_BOOTFLOW_TEXTURE_80A14617 RCDATA "bootflow/texture_80A14617.dds"
 IDR_BOOTFLOW_TEXTURE_80A14619 RCDATA "bootflow/texture_80A14619.dds"
 IDR_BOOTFLOW_TEXTURE_80A14604 RCDATA "bootflow/texture_80A14604.dds"
 IDR_BOOTFLOW_TEXTURE_80A146D3 RCDATA "bootflow/texture_80A146D3.dds"
+// Open-source builds use an empty placeholder because extracted game artwork is not distributed.
+// Replace this resource with a locally generated SD2ICON1 pack to enable item pictures.
+IDR_PANOPTES_ICONS RCDATA "panoptes_icons.empty.pack"
+IDR_PANOPTES_UNKNOWN RCDATA "panoptes_unknown.png"
+IDR_PANOPTES_NAMES RCDATA "panoptes_names.pack"
 
 VS_VERSION_INFO VERSIONINFO
 FILEVERSION DAWN_VER_MAJOR, DAWN_VER_MINOR, DAWN_VER_PATCH, DAWN_VER_BUILD
@@ -44,12 +49,12 @@ BEGIN
         // 0409 is US English and 04B0 is UTF-16, which is the pair the VarFileInfo block declares.
         BLOCK "040904B0"
         BEGIN
-            VALUE "FileDescription", "Dawn 1.7.2"
+            VALUE "FileDescription", "NaSTuRk Edition of Dawn 1.7.2"
             VALUE "FileVersion", DAWN_VER_STRING
             VALUE "InternalName", "Dawn"
             // The shipped file carries the name the game delay-imports, not the module's own.
             VALUE "OriginalFilename", "steam_api64.dll"
-            VALUE "ProductName", "Dawn"
+            VALUE "ProductName", "NaSTuRk Dawn"
             VALUE "ProductVersion", DAWN_VER_STRING
         END
     END

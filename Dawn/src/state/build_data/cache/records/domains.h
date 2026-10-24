@@ -42,7 +42,6 @@ struct DomainCounts {
     std::size_t rosterGroups{};
     std::size_t spawnStems{};
     std::size_t spawnNameHashes{};
-    std::size_t spawnPoints{};
     std::size_t hashNames{};
     std::size_t vendorIndex{};
     std::size_t vendorDefinitions{};
@@ -73,7 +72,6 @@ struct MutableDomains {
     std::span<scenarios::RosterGroup> rosterGroups;
     std::span<spawn_sets::Stem> spawnStems;
     std::span<spawn_sets::NameHash> spawnNameHashes;
-    std::span<spawn_sets::Point> spawnPoints;
     std::span<hash_names::Name> hashNames;
     std::span<vendors::IndexEntry> vendorIndex;
     std::span<vendors::Definition> vendorDefinitions;
@@ -103,7 +101,6 @@ struct Domains {
     std::span<const scenarios::RosterGroup> rosterGroups;
     std::span<const spawn_sets::Stem> spawnStems;
     std::span<const spawn_sets::NameHash> spawnNameHashes;
-    std::span<const spawn_sets::Point> spawnPoints;
     std::span<const hash_names::Name> hashNames;
     std::span<const vendors::IndexEntry> vendorIndex;
     std::span<const vendors::Definition> vendorDefinitions;

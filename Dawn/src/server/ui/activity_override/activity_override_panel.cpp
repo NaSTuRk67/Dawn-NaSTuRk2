@@ -12,7 +12,6 @@
 #include <span>
 #include <string_view>
 
-#include "../../../core/ui/components/label/ui_label_component.h"
 #include "../../../core/ui/components/picker/ui_picker_component.h"
 #include "../../../core/ui/components/section/ui_section_component.h"
 #include "../../../core/ui/components/toggle/ui_toggle_component.h"
@@ -25,7 +24,6 @@ namespace dawn::server::ui::activity_override {
 namespace {
 
 namespace forced = state::activity::forced;
-namespace label = core::ui::components::label;
 namespace picker = core::ui::components::picker;
 
 /** Preview shown by a picker with nothing chosen. */
@@ -65,7 +63,6 @@ std::size_t g_spawnRow{kNoRow};
                               std::size_t count,
                               const char* preview,
                               std::size_t& row) noexcept {
-    label::align();
     ImGui::TextUnformatted(caption);
     std::array<picker::Item, kItemCapacity> items{};
     const std::size_t shown = (std::min)(count, items.size());
