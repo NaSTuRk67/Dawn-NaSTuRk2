@@ -2,9 +2,9 @@
 
 <img src="assets/dawn-logo.svg" width="120" alt="Dawn">
 
-# Dawn
+# Dawn - NaSTuRk Edition
 
-**NaSTuRk Edition** is a custom build of Dawn. It adds experimental Panoptes loadout features, live weapon, armor, socket and subclass editing, persistent saved loadouts, and NaSTuRk branding. Cross-class subclasses are experimental and may cause broken animations or disconnects. It is designed only for the supported offline Destiny 2 build.
+**NaSTuRk Edition** is a custom build of Dawn maintained by NaSTuRk. It adds experimental Panoptes loadout features, live weapon, armor, socket and subclass editing, persistent saved loadouts, and NaSTuRk branding. Cross-class subclasses are experimental and may cause broken animations or disconnects. It is designed only for the supported offline Destiny 2 build.
 
 **Missions and a native loadout editor for Destiny 2 build 86657.**
 
